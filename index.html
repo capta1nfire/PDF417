@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generador de etiquetas con códigos de barras PDF417 para Columbia Logistics">
+    <title>Columbia Logistics PDF417 Generator</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Forzar letra mayúscula en los campos de texto descriptivo y datos del barcode */
+        #lots-data,
+        #shipping-data,
+        #lots-label-text,
+        #shipping-label-text,
+        #lots-additional-data {
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="img/logo-columbia.png" alt="Columbia Logistics Logo">
+            <h1>Columbia Logistics PDF417 Generator</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="control-panel">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="lots" id="lots-tab-btn">Lotes</button>
+                <button class="tab-btn" data-tab="shipping" id="shipping-tab-btn">Shipping</button>
+            </div>
+
+            <div class="tab-content active" id="lots-tab">
+                <div class="card-container">
+                    <div class="card-label">Lotes</div>
+                    <div class="card">
+                        <label for="lots-data">Datos (una entrada por línea)</label>
+                        <textarea id="lots-data" placeholder="Ingrese datos del código"></textarea>
+                        <!-- Contador dinámico para el texto del código de barras en "Lotes" -->
+                        <span id="lots-data-counter" class="char-counter">20 caracteres restantes</span>
+                        <div class="form-group">
+                            <label for="lots-additional-data">Datos Adicionales (una entrada por línea)</label>
+                            <textarea id="lots-additional-data" placeholder="Ingrese datos adicionales"></textarea>
+                            <!-- Contador dinámico para los datos adicionales en "Lotes" -->
+                            <span id="lots-additional-data-counter" class="char-counter">20 caracteres restantes</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="lots-label-text">Texto Descriptivo</label>
+                            <input type="text" id="lots-label-text" maxlength="250" placeholder="Texto asociado para todas las etiquetas">
+                            <span id="lots-label-text-counter" class="char-counter">250 caracteres restantes</span>
+                        </div>
+                        <div class="checkbox-container page-number-toggle">
+                            <input type="checkbox" id="show-page-number-lots" checked>
+                            <label for="show-page-number-lots">Mostrar número de página</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div class="card-label">Ajustes</div>
+                    <div class="card">
+                        <div class="unit-selector" id="unit-selector-lots">
+                            <button class="unit-btn active" data-unit="in">in</button>
+                            <button class="unit-btn" data-unit="cm">cm</button>
+                            <button class="unit-btn" data-unit="px">px</button>
+                        </div>
+                        <div class="dpi-selector" id="dpi-selector-lots">
+                            <label for="dpi-lots">Resolución de Impresión (DPI)</label>
+                            <select id="dpi-lots">
+                                <option value="203" selected>203 DPI (Zebra)</option>
+                                <option value="600">600 DPI (Láser)</option>
+                            </select>
+                        </div>
+                        <div class="template-dimensions">
+                            <div class="dimension-row">
+                                <label for="template-width-lots">Ancho</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="template-width-lots" step="0.1" value="4">
+                                    <span class="unit-display" id="template-width-unit-lots">in</span>
+                                </div>
+                            </div>
+                            <div class="dimension-row">
+                                <label for="template-height-lots">Alto</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="template-height-lots" step="0.1" value="6">
+                                    <span class="unit-display" id="template-height-unit-lots">in</span>
+                                </div>
+                            </div>
+                            <button id="toggle-orientation-btn-lots" class="icon-btn">
+                                <img src="img/portrait-landscape-icon.png" alt="Cambiar Orientación">
+                            </button>
+                        </div>
+                        <div class="slider-container">
+                            <label for="barcode-size-lots">Tamaño del Código</label>
+                            <div class="slider-wrapper">
+                                <input type="range" id="barcode-size-lots" min="10" max="100" step="5" value="100">
+                                <span class="value-display" id="barcode-size-value-lots">100%</span>
+                            </div>
+                        </div>
+                        <div class="slider-container">
+                            <label for="logo-size-lots">Tamaño del Logo</label>
+                            <div class="slider-wrapper">
+                                <input type="range" id="logo-size-lots" min="40" max="100" step="5" value="100">
+                                <span class="value-display" id="logo-size-value-lots">100%</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button id="upload-logo-btn-lots" class="btn-secondary">Cargar Logo</button>
+                        </div>
+                        <input type="file" id="logo-upload-lots" class="file-upload" accept="image/*">
+                        <img src="img/logo-columbia-shipping.png" alt="Logo por defecto Lots" id="default-logo-lots" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="shipping-tab">
+                <div class="card-container">
+                    <div class="card-label">Shipping</div>
+                    <div class="card">
+                        <label for="shipping-data">Datos (una entrada por línea)</label>
+                        <textarea id="shipping-data" placeholder="Ingrese números (ej. 14506)"></textarea>
+                        <!-- Contador dinámico para el texto del código de barras en "Shipping" -->
+                        <span id="shipping-data-counter" class="char-counter">20 caracteres restantes</span>
+                        <div class="form-group">
+                            <label for="shipping-prefix1">Prefijo 1 (Código de Barras)</label>
+                            <input type="text" id="shipping-prefix1" value="LAXWH" placeholder="Prefijo (ej. LAXWH)">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-label-text">Texto Descriptivo</label>
+                            <input type="text" id="shipping-label-text" maxlength="250" placeholder="Texto asociado para todas las etiquetas">
+                            <!-- Contador dinámico para el texto descriptivo en "Shipping" -->
+                            <span id="shipping-label-text-counter" class="char-counter">250 caracteres restantes</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-prefix2">Prefijo 2 (Container)</label>
+                            <input type="text" id="shipping-prefix2" value="CONTAINER" placeholder="Prefijo (ej. CONTAINER)">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-container-number">Número del Container</label>
+                            <input type="text" id="shipping-container-number" placeholder="Ej. 12345">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-prefix3">Prefijo 3 (Transload)</label>
+                            <input type="text" id="shipping-prefix3" value="TRANSLOAD" placeholder="Prefijo (ej. TRANSLOAD)">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-transload-number">Número del Transload</label>
+                            <input type="text" id="shipping-transload-number" placeholder="Ej. 67890">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-counter">Contador (ej. 1 of 10)</label>
+                            <input type="text" id="shipping-counter" placeholder="Ej. 1 of 10">
+                        </div>
+                        <div class="checkbox-container page-number-toggle">
+                            <input type="checkbox" id="show-page-number-shipping" checked>
+                            <label for="show-page-number-shipping">Mostrar número de página</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div class="card-label">Ajustes</div>
+                    <div class="card">
+                        <div class="unit-selector" id="unit-selector-shipping">
+                            <button class="unit-btn active" data-unit="in">in</button>
+                            <button class="unit-btn" data-unit="cm">cm</button>
+                            <button class="unit-btn" data-unit="px">px</button>
+                        </div>
+                        <div class="dpi-selector" id="dpi-selector-shipping">
+                            <label for="dpi-shipping">Resolución de Impresión (DPI)</label>
+                            <select id="dpi-shipping">
+                                <option value="203" selected>203 DPI (Zebra)</option>
+                                <option value="600">600 DPI (Láser)</option>
+                            </select>
+                        </div>
+                        <div class="template-dimensions">
+                            <div class="dimension-row">
+                                <label for="template-width-shipping">Ancho</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="template-width-shipping" step="0.1" value="4">
+                                    <span class="unit-display" id="template-width-unit-shipping">in</span>
+                                </div>
+                            </div>
+                            <div class="dimension-row">
+                                <label for="template-height-shipping">Alto</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="template-height-shipping" step="0.1" value="6">
+                                    <span class="unit-display" id="template-height-unit-shipping">in</span>
+                                </div>
+                            </div>
+                            <button id="toggle-orientation-btn-shipping" class="icon-btn">
+                                <img src="img/portrait-landscape-icon.png" alt="Cambiar Orientación">
+                            </button>
+                        </div>
+                        <div class="slider-container">
+                            <label for="barcode-size-shipping">Tamaño del Código</label>
+                            <div class="slider-wrapper">
+                                <input type="range" id="barcode-size-shipping" min="10" max="100" step="5" value="100">
+                                <span class="value-display" id="barcode-size-value-shipping">100%</span>
+                            </div>
+                        </div>
+                        <div class="slider-container">
+                            <label for="logo-size-shipping">Tamaño del Logo</label>
+                            <div class="slider-wrapper">
+                                <input type="range" id="logo-size-shipping" min="40" max="100" step="5" value="100">
+                                <span class="value-display" id="logo-size-value-shipping">100%</span>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button id="upload-logo-btn-shipping" class="btn-secondary">Cargar Logo</button>
+                        </div>
+                        <input type="file" id="logo-upload-shipping" class="file-upload" accept="image/*">
+                        <img src="img/logo-columbia-shipping.png" alt="Logo por defecto Shipping" id="default-logo-shipping" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="preview-actions" id="preview-actions">
+                <button id="print-btn" class="btn-secondary">
+                    <img src="img/print-button.svg" alt="Imprimir">
+                    Imprimir
+                </button>
+                <button id="download-pdf-btn" class="btn-secondary">
+                    <img src="img/download-button.svg" alt="Descargar PDF">
+                    Descargar PDF
+                </button>
+                <button id="generate-batch-btn" class="btn-secondary visible-in-batch">
+                    <img src="img/download-button.svg" alt="Generar ZIP">
+                    Generar ZIP
+                </button>
+            </div>
+            <div class="preview-container" id="preview-container">
+                <div class="label-preview" id="label-preview">
+                    <div class="empty-barcode-msg" id="empty-barcode-msg">
+                        Ingrese los datos del código de barras para generar la vista previa
+                    </div>
+                </div>
+            </div>
+            <div class="preview-navigation" id="preview-navigation">
+                <button id="first-preview" class="btn-secondary">Inicio del Batch</button>
+                <button id="prev-preview" class="btn-secondary" disabled>← Anterior</button>
+                <span id="preview-counter" class="preview-counter">1 / 1</span>
+                <button id="next-preview" class="btn-secondary" disabled>Siguiente →</button>
+                <button id="last-preview" class="btn-secondary">Fin del Batch</button>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast-message"></div>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+    <div class="version-info" id="version-info">
+        <span>v1.1.5 - 2025-03-24</span>
+        <span class="designer">Diseñado por David García</span>
+    </div>
+
+    <script type="module" src="./js/init.js"></script>
+    <script>
+        // Convertir a mayúsculas los campos de texto descriptivo y datos del barcode
+        document.addEventListener('DOMContentLoaded', () => {
+            const fields = ['lots-data', 'shipping-data', 'lots-label-text', 'shipping-label-text', 'lots-additional-data'];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', () => {
+                        field.value = field.value.toUpperCase();
+                    });
+                }
+            });
+        });
+    </script>
+    <script>(function(){/* Script Cloudflare inline */})();</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+    "name": "columbia-lax-pdf417-generator",
+    "version": "1.0.0",
+    "description": "Generador de etiquetas con códigos de barras PDF417 para Columbia Logistics",
+    "main": "index.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "bwip-js": "^3.4.5",
+        "file-saver": "^2.0.5",
+        "html2canvas": "^1.4.1",
+        "jspdf": "^3.0.1",
+        "jszip": "^3.10.1",
+        "lodash": "^4.17.21"
+    },
+    "devDependencies": {
+        "vite": "^6.2.5"
+    }
+}
