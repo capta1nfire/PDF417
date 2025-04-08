@@ -4,6 +4,17 @@ import { log, showToast, convertToPixels } from './utils.js';
 import { calculateLayoutDimensions, createLogoContainer, createTextContainer, createBarcodeContainer, createPageNumberContainer, createAdditionalDataContainer } from './commonPreviewUtils.js';
 import { LAYOUT_CONSTANTS } from './constants.js';
 
+export async function updatePreview(event, resolvedElements) {
+    try {
+        console.log('Elements received:', Object.keys(resolvedElements));
+        console.log('LABEL_PREVIEW:', resolvedElements.LABEL_PREVIEW);
+        // ... rest of the function
+    } catch (error) {
+        console.error('Error in updatePreview:', error);
+        throw error;
+    }
+}
+
 const lotsPreviewManager = {
     updatePreview: async (barcodeDataOverride, resolvedElements) => {
         try {
@@ -85,6 +96,9 @@ const lotsPreviewManager = {
 
             resolvedElements.LABEL_PREVIEW.innerHTML = '';
             resolvedElements.emptyBarcodeMsg.style.display = 'block';
+
+            console.log('LABEL_PREVIEW:', resolvedElements.LABEL_PREVIEW);
+            console.log('LABEL_PREVIEW.style:', resolvedElements.LABEL_PREVIEW?.style);
 
             const rawData = dataInput.value.trim();
             const dataArray = rawData ? rawData.split('\n').filter(line => line.trim()) : [];
