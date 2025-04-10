@@ -91,7 +91,7 @@ export const BARCODE_CONFIG_LANDSCAPE = {
             COLUMNS: 6, // Para textos muy cortos (≤ 3 caracteres)
             ROWS: 5, // Menos filas para menos densidad
             YHEIGHT: 5,
-            SCALE: baseScale * 1.3 // Ajustar escala para landscape
+            SCALE: baseScale * 1.1 // Ajustar escala para landscape
         };
     },
     get LEVEL_2() {
@@ -99,19 +99,19 @@ export const BARCODE_CONFIG_LANDSCAPE = {
         const baseScale = calculateScale(dpi);
         return { 
             COLUMNS: 6, // Para textos cortos (4-7 caracteres)
-            ROWS: 40,
+            ROWS: 6,
             YHEIGHT: 4,
-            SCALE: baseScale * 0.9
+            SCALE: baseScale * 1.1
         };
     },
     get LEVEL_3() {
         const dpi = state.dpiShipping;
         const baseScale = calculateScale(dpi);
         return { 
-            COLUMNS: 8, // Para textos medianos a largos (> 7 caracteres)
-            ROWS: 50,
+            COLUMNS: 6, // Para textos medianos a largos (> 7 caracteres)
+            ROWS: 6,
             YHEIGHT: 4,
-            SCALE: baseScale * 0.9
+            SCALE: baseScale * 1.1
         };
     }
 };

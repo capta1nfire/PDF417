@@ -380,10 +380,10 @@ async function initializeApp() {
                     document.getElementById('loading-overlay').style.display = 'none';
                     
                     if (success) {
-                        showToast(null, `Archivo importado correctamente`);
+                        showToast(resolvedElements.toastMessage, 'Archivo importado correctamente');
                         updatePreviewWithDebounce(resolvedElements);
                     } else {
-                        showToast(null, 'Error al importar el archivo');
+                        showToast(resolvedElements.toastMessage, 'Error al importar el archivo');
                     }
                     
                     // Limpiar el input

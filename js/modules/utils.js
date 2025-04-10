@@ -13,13 +13,22 @@ export function log(message, type = 'info') {
     }
 }
 
+// Mejorar la función showToast para que busque el elemento si no se proporciona
+
 export function showToast(toastElement, message) {
-    if (!toastElement || typeof toastElement.classList === 'undefined') {
-        console.warn('Toast element no válido, mensaje no mostrado: ' + message);
-        return;
+    // Si no se proporciona el elemento, intentar obtenerlo del DOM
+    if (!toastElement) {
+        toastElement = document.getElementById('toast-message');
+        if (!toastElement) {
+            log(`Toast element no válido, mensaje no mostrado: ${message}`, 'warn');
+            return;
+        }
     }
+    
     toastElement.textContent = message;
     toastElement.classList.add('show');
+    
+    // Eliminar clase show después de 3 segundos
     setTimeout(() => {
         toastElement.classList.remove('show');
     }, 3000);
