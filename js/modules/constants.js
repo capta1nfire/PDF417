@@ -99,8 +99,8 @@ export const BARCODE_CONFIG_LANDSCAPE = {
         const baseScale = calculateScale(dpi);
         return { 
             COLUMNS: 6, // Para textos cortos (4-7 caracteres)
-            ROWS: 6,
-            YHEIGHT: 4,
+            ROWS: 5,
+            YHEIGHT: 5,
             SCALE: baseScale * 1.1
         };
     },
@@ -109,8 +109,8 @@ export const BARCODE_CONFIG_LANDSCAPE = {
         const baseScale = calculateScale(dpi);
         return { 
             COLUMNS: 6, // Para textos medianos a largos (> 7 caracteres)
-            ROWS: 6,
-            YHEIGHT: 4,
+            ROWS: 5,
+            YHEIGHT: 5,
             SCALE: baseScale * 1.1
         };
     }

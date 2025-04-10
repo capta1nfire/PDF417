@@ -17,17 +17,17 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <img src="img/logo-columbia.png" alt="Columbia Logistics Logo">
-            <h1>Columbia Logistics PDF417 Generator</h1>
-        </div>
-    </header>
-
     <main>
         <div class="control-panel">
+            <!-- Nuevo encabezado con diseño vertical dentro del panel de control -->
+            <div class="flex flex-col items-center justify-center p-4 mb-6 bg-white rounded-lg shadow-sm">
+                <img src="img/logo-columbia.png" alt="Columbia Logistics Logo" class="h-20 mb-3 object-contain">
+                <h1 class="text-2xl font-bold text-gray-800 text-center">Columbia Logistics PDF417 Generator</h1>
+            </div>
+            
             <div class="tabs">
                 <button class="tab-btn active" data-tab="lots" id="lots-tab-btn">Lotes</button>
                 <button class="tab-btn" data-tab="shipping" id="shipping-tab-btn" style="display: none;">Shipping</button>
@@ -39,14 +39,6 @@
                     <div class="card">
                         <label for="lots-data">Datos (una entrada por línea)</label>
                         <textarea id="lots-data" placeholder="Ingrese datos del código"></textarea>
-                        <!-- Añadir después de la línea ~45 (justo después del textarea de datos) -->
-                        <div class="import-button-container">
-                            <button id="import-data-btn" class="btn-secondary">
-                                <img src="img/upload-icon.svg" alt="Importar">
-                                Importar desde Excel/CSV
-                            </button>
-                            <input type="file" id="file-upload" class="file-upload" accept=".xlsx,.xls,.csv">
-                        </div>
                         <!-- Contador dinámico para el texto del código de barras en "Lotes" -->
                         <span id="lots-data-counter" class="char-counter">20 caracteres restantes</span>
                         <div class="form-group">
@@ -56,9 +48,16 @@
                             <span id="lots-additional-data-counter" class="char-counter">20 caracteres restantes</span>
                         </div>
                         <div class="form-group">
-                            <label for="lots-label-text">Texto Descriptivo</label>
+                            <label for="lots-label-text">Descripción</label>
                             <input type="text" id="lots-label-text" maxlength="250" placeholder="Texto asociado para todas las etiquetas">
                             <span id="lots-label-text-counter" class="char-counter">250 caracteres restantes</span>
+                        </div>
+                        <div class="import-button-container">
+                            <button id="import-data-btn" class="btn-secondary hover:bg-blue-600 transition-colors shadow-sm">
+                                <img src="img/upload-icon.svg" alt="Importar">
+                                Importar desde Excel/CSV
+                            </button>
+                            <input type="file" id="file-upload" class="file-upload" accept=".xlsx,.xls,.csv">
                         </div>
                         <div class="checkbox-container page-number-toggle">
                             <input type="checkbox" id="show-page-number-lots" checked>
@@ -69,10 +68,11 @@
                 <div class="card-container">
                     <div class="card-label">Ajustes</div>
                     <div class="card">
-                        <div class="unit-selector" id="unit-selector-lots">
-                            <button class="unit-btn active" data-unit="in">in</button>
-                            <button class="unit-btn" data-unit="cm">cm</button>
-                            <button class="unit-btn" data-unit="px">px</button>
+                        <!-- Modificar el div unit-selector para usar estilos inline más fuertes -->
+                        <div class="unit-selector" id="unit-selector-lots" style="display: flex; width: 100%;">
+                            <button class="unit-btn active" data-unit="in" style="flex: 1;">in</button>
+                            <button class="unit-btn" data-unit="cm" style="flex: 1;">cm</button>
+                            <button class="unit-btn" data-unit="px" style="flex: 1;">px</button>
                         </div>
                         <div class="dpi-selector" id="dpi-selector-lots">
                             <label for="dpi-lots">Resolución de Impresión (DPI)</label>
@@ -100,7 +100,8 @@
                                 <img src="img/portrait-landscape-icon.png" alt="Cambiar Orientación">
                             </button>
                         </div>
-                        <div class="slider-container">
+                        <!-- Primero ocultar el deslizador en lugar de eliminarlo -->
+                        <div class="slider-container" style="display: none;">
                             <label for="barcode-size-lots">Tamaño del Código</label>
                             <div class="slider-wrapper">
                                 <input type="range" id="barcode-size-lots" min="10" max="100" step="5" value="100">
@@ -136,7 +137,7 @@
                             <input type="text" id="shipping-prefix1" value="LAXWH" placeholder="Prefijo (ej. LAXWH)">
                         </div>
                         <div class="form-group">
-                            <label for="shipping-label-text">Texto Descriptivo</label>
+                            <label for="shipping-label-text">Descripción</label>
                             <input type="text" id="shipping-label-text" maxlength="250" placeholder="Texto asociado para todas las etiquetas">
                             <!-- Contador dinámico para el texto descriptivo en "Shipping" -->
                             <span id="shipping-label-text-counter" class="char-counter">250 caracteres restantes</span>
@@ -212,7 +213,7 @@
                             <label for="logo-size-shipping">Tamaño del Logo</label>
                             <div class="slider-wrapper">
                                 <input type="range" id="logo-size-shipping" min="40" max="100" step="5" value="100">
-                                <span class="value-display" id="logo-size-value-shipping">100%</span>
+                                <span id="logo-size-value-shipping" class="value-display">100%</span>
                             </div>
                         </div>
                         <div class="button-group">
@@ -248,11 +249,11 @@
                 </div>
             </div>
             <div class="preview-navigation" id="preview-navigation">
-                <button id="first-preview" class="btn-secondary">Inicio del Batch</button>
+                <button id="first-preview" class="btn-secondary">Inicio</button>
                 <button id="prev-preview" class="btn-secondary" disabled>← Anterior</button>
                 <span id="preview-counter" class="preview-counter">1 / 1</span>
                 <button id="next-preview" class="btn-secondary" disabled>Siguiente →</button>
-                <button id="last-preview" class="btn-secondary">Fin del Batch</button>
+                <button id="last-preview" class="btn-secondary">Fin</button>
             </div>
         </div>
     </main>
@@ -282,5 +283,542 @@
         });
     </script>
     <script>(function(){/* Script Cloudflare inline */})();</script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Crear un elemento de estilo
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Estilos para los selectores de unidades */
+          .unit-selector {
+            display: flex !important;
+            flex-direction: row !important;
+            width: 100% !important;
+            margin-bottom: 10px !important;
+          }
+          
+          .unit-selector .unit-btn {
+            flex: 1 1 33% !important;
+            text-align: center !important;
+            margin: 0 !important;
+            border: 1px solid #ccc !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Crear un elemento de estilo para ocultar las pestañas
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Ocultar la sección de pestañas manteniendo la funcionalidad */
+          .tabs {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Crear un elemento de estilo para los inputs de dimensiones
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Estilos para los inputs de dimensiones */
+          .dimension-row {
+            display: flex !important;
+            align-items: center !important;
+            margin-bottom: 8px !important;
+          }
+          
+          .dimension-row label {
+            width: 40px !important;
+            flex-shrink: 0 !important;
+          }
+          
+          .input-wrapper {
+            display: flex !important;
+            align-items: center !important;
+            flex: 1 !important;
+          }
+          
+          .input-wrapper input[type="number"] {
+            width: 100% !important;
+            max-width: 80px !important;
+            padding: 4px 8px !important;
+          }
+          
+          .unit-display {
+            margin-left: 5px !important;
+            width: 20px !important;
+            text-align: left !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Estilos para mejorar la posición del botón de orientación
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Estilo para reposicionar el botón de orientación */
+          .template-dimensions {
+            position: relative !important;
+            padding-right: 40px !important;
+          }
+          
+          #toggle-orientation-btn-lots,
+          #toggle-orientation-btn-shipping {
+            position: absolute !important;
+            right: 0 !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            margin: 0 !important;
+            height: 38px !important;
+            width: 38px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 4px !important;
+          }
+          
+          #toggle-orientation-btn-lots img,
+          #toggle-orientation-btn-shipping img {
+            width: 20px !important;
+            height: 20px !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Estilos para eliminar el scroll del panel de control
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Eliminar restricciones de altura y scroll */
+          .control-panel {
+            max-height: none !important;
+            overflow: visible !important;
+            height: auto !important;
+          }
+          
+          /* Optimizar tamaños para hacer todo más compacto */
+          textarea {
+            max-height: 100px !important;
+          }
+          
+          .card {
+            padding: 12px !important;
+          }
+          
+          .form-group {
+            margin-bottom: 10px !important;
+          }
+          
+          /* Ajustar márgenes entre elementos */
+          .card-container {
+            margin-bottom: 15px !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Estilos para los cambios solicitados
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* 1. Hacer más pequeño el título */
+          .control-panel h1 {
+            font-size: 1.25rem !important;
+            margin-bottom: 0.5rem !important;
+            line-height: 1.3 !important;
+          }
+          
+          /* 2. Inputs proporcionales y textareas limitados a 2 líneas */
+          textarea {
+            height: 2.5em !important;
+            min-height: 2.5em !important;
+            max-height: 2.5em !important;
+            resize: none !important;
+          }
+          
+          /* Más estilos para simetrizar inputs */
+          input[type="text"], 
+          input[type="number"] {
+            height: 32px !important;
+            line-height: 32px !important;
+          }
+          
+          .form-group {
+            margin-bottom: 8px !important;
+          }
+          
+          /* Espaciado más compacto */
+          .card {
+            padding: 10px !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+        
+        // 3. Cambiar "Texto Descriptivo" a "Descripción"
+        const descriptiveLabels = document.querySelectorAll('label[for="lots-label-text"], label[for="shipping-label-text"]');
+        descriptiveLabels.forEach(label => {
+          label.textContent = "Descripción";
+        });
+        
+        // 4. Mover el botón de importación después del campo de descripción
+        const importButton = document.querySelector('.import-button-container');
+        const descriptiveTextGroup = document.querySelector('label[for="lots-label-text"]').closest('.form-group');
+        
+        if (importButton && descriptiveTextGroup) {
+          // Insertar el botón de importación después del grupo del campo de descripción
+          descriptiveTextGroup.parentNode.insertBefore(importButton, descriptiveTextGroup.nextSibling);
+        }
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Crear estilo para los ajustes
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Asegurar que datos y datos adicionales tengan el mismo ancho */
+          textarea {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: 0.875rem !important;
+          }
+          
+          /* Hacer placeholder más pequeño y sin mayúsculas */
+          ::placeholder {
+            font-size: 0.75rem !important;
+            text-transform: none !important;
+            opacity: 0.7 !important;
+          }
+          
+          /* Títulos de componentes en negrita pero más pequeños */
+          .card-label {
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+          }
+          
+          /* Etiquetas de campo */
+          label {
+            font-weight: 500 !important;
+            font-size: 0.85rem !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+        
+        // Convertir placeholders a formato título (primera letra mayúscula)
+        function toTitleCase(str) {
+          return str.replace(/\w\S*/g, txt => 
+            txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+          );
+        }
+        
+        // Actualizar los placeholders
+        document.querySelectorAll('textarea, input[type="text"]').forEach(el => {
+          if (el.placeholder) {
+            el.placeholder = toTitleCase(el.placeholder);
+          }
+        });
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Estilos para corregir proporciones y simetría
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Ajustar contador de caracteres */
+          .char-counter {
+            font-size: 0.65rem !important;
+            color: #6b7280 !important;
+            display: block !important;
+            text-align: right !important;
+            margin-top: 2px !important;
+            height: 12px !important;
+          }
+          
+          /* Unificar alineación de placeholders */
+          textarea {
+            vertical-align: top !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+          }
+          
+          /* Mejorar simetría de tarjetas */
+          .card {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+          }
+          
+          /* Hacer que todos los inputs y textarea tengan las mismas dimensiones */
+          textarea, input[type="text"], input[type="number"] {
+            border: 1px solid #d1d5db !important;
+            border-radius: 4px !important;
+            padding: 6px 8px !important;
+          }
+          
+          /* Ajustar espaciado entre elementos de formulario */
+          .form-group {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+          }
+          
+          /* Homogeneizar márgenes */
+          label, .char-counter, .form-group, .checkbox-container {
+            margin: 0 !important;
+          }
+          
+          /* Ajustar espacio entre botón de importación y checkbox */
+          .import-button-container {
+            margin-bottom: 8px !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+        
+        // Asegurar que todos los placeholder tengan el mismo alineamiento
+        document.querySelectorAll('textarea').forEach(textarea => {
+          textarea.style.verticalAlign = 'top';
+        });
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Eliminar fondo blanco y sombras
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Eliminar fondo blanco del encabezado y panel de control */
+          .control-panel > div:first-child {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            padding-bottom: 0 !important;
+          }
+          
+          /* Opcional: Hacer transparente todo el panel de control */
+          .control-panel, .card {
+            background-color: transparent !important;
+          }
+          
+          /* Mejorar contraste de los textos y bordes en fondo transparente */
+          .card {
+            border: 1px solid #e5e7eb !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Eliminar específicamente el borde del encabezado
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Eliminar cualquier borde o línea del encabezado */
+          .control-panel > div:first-child {
+            border: none !important;
+            border-radius: 0 !important;
+            border-bottom: none !important;
+            box-shadow: none !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Eliminar borde derecho del panel de control
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Eliminar borde derecho del panel de control */
+          .control-panel {
+            border-right: none !important;
+            box-shadow: none !important; /* Por si el borde es realmente una sombra */
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Unificar estilos entre las tarjetas Lotes y Ajustes
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Estilos unificados para todas las tarjetas */
+          .card-container {
+            margin-bottom: 16px !important;
+          }
+          
+          /* Estilos iguales para las etiquetas de las tarjetas */
+          .card-label {
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            color: #4b5563 !important;
+            padding: 0 0 6px 0 !important;
+            margin: 0 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+          }
+          
+          /* Unificar estilos de las tarjetas */
+          .card {
+            border: 1px solid #e5e7eb !important;
+            padding: 12px !important;
+            border-radius: 4px !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+          }
+          
+          /* Unificar estilos de selectores y otros controles */
+          select, .unit-selector {
+            height: 32px !important;
+            margin-bottom: 10px !important;
+          }
+          
+          /* Estilos para slider containers */
+          .slider-container {
+            margin-bottom: 10px !important;
+          }
+          
+          /* Unificar espaciado interno */
+          .card > *:last-child {
+            margin-bottom: 0 !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Ajustar tamaño de fuente para la etiqueta de resolución de impresión
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Unificar tamaño de todas las etiquetas de los formularios */
+          .dpi-selector label {
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            line-height: 1.4 !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Reducir espacios en la tarjeta de Ajustes
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Reducir espacios específicamente en la tarjeta de Ajustes */
+          .card-container:nth-child(2) .card {
+            padding: 8px !important;
+          }
+          
+          /* Reducir márgenes entre elementos de Ajustes */
+          .dpi-selector {
+            margin-bottom: 6px !important;
+          }
+          
+          /* Hacer más compacto el selector de DPI */
+          .dpi-selector select {
+            padding: 3px 6px !important;
+            height: 28px !important;
+          }
+          
+          /* Reducir espacio entre filas de dimensiones */
+          .dimension-row {
+            margin-bottom: 4px !important;
+          }
+          
+          /* Reducir altura del selector de unidades */
+          .unit-selector {
+            margin-bottom: 6px !important;
+          }
+          
+          /* Hacer más compacto el slider */
+          .slider-container {
+            margin-bottom: 6px !important;
+          }
+          
+          .slider-container label {
+            font-size: 0.85rem !important;
+            margin-bottom: 2px !important;
+          }
+          
+          /* Ajustar templae dimensions */
+          .template-dimensions {
+            margin-bottom: 6px !important;
+          }
+          
+          /* Hacer inputs numéricos más pequeños verticalmente */
+          .input-wrapper input[type="number"] {
+            padding: 3px 6px !important;
+            height: 28px !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // 1. Modificar el estilo y comportamiento de las tarjetas de Ajustes
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          /* Estilos para el acordeón de Ajustes */
+          .card-container:nth-child(2) .card-label {
+            cursor: pointer !important;
+            padding: 8px 12px !important;
+            background-color: #f3f4f6 !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 4px !important;
+            position: relative !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+          }
+          
+          .card-container:nth-child(2) .card-label::after {
+            content: '▼' !important;
+            font-size: 10px !important;
+            transition: transform 0.2s !important;
+          }
+          
+          .card-container:nth-child(2).collapsed .card-label::after {
+            transform: rotate(-90deg) !important;
+          }
+          
+          .card-container:nth-child(2).collapsed .card {
+            display: none !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+        
+        // 2. Agregar lógica para colapsar/expandir
+        const ajustesCards = document.querySelectorAll('.card-container:nth-child(2)');
+        
+        ajustesCards.forEach(container => {
+          // Iniciar colapsado
+          container.classList.add('collapsed');
+          
+          // Agregar listener al encabezado
+          const cardLabel = container.querySelector('.card-label');
+          if (cardLabel) {
+            cardLabel.addEventListener('click', () => {
+              container.classList.toggle('collapsed');
+            });
+          }
+        });
+      });
+    </script>
 </body>
 </html>
