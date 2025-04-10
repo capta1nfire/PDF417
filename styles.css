@@ -577,3 +577,35 @@ main {
     font-size: 14px;
     color: var(--text-color);
 }
+
+/* Añadir al final del archivo */
+
+.import-button-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+#import-data-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #4a90e2;
+    color: white;
+}
+
+#import-data-btn:hover {
+    background-color: #3a7bc8;
+}
+
+#file-upload {
+    display: none;
+}
+
+/* Estilos para el ícono */
+#import-data-btn img {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1); /* Hace que el ícono sea blanco */
+}

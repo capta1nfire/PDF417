@@ -23,6 +23,21 @@ const lotsPreviewManager = {
     
     updatePreview: async (barcodeDataOverride, resolvedElements) => {
         try {
+            // NUEVO CÓDIGO: Actualizar inputs cuando se navega entre registros
+            if (state.dataFromImport && state.lotsPreviewsData && state.lotsPreviewsData.length > 0) {
+                const currentRecord = state.lotsPreviewsData[state.currentPreviewIndexLots];
+                log(`Mostrando registro #${state.currentPreviewIndexLots + 1}: SKU=${currentRecord.barcodeData}`, 'debug');
+                
+                // Actualizar inputs con los valores del registro actual
+                resolvedElements.lotsDataInput.value = currentRecord.barcodeData || '';
+                resolvedElements.lotsAdditionalData.value = currentRecord.additionalData || '';
+                
+                if (currentRecord.labelText) {
+                    resolvedElements.lotsLabelTextInput.value = currentRecord.labelText;
+                }
+            }
+            
+            // CONTINUAR CON EL CÓDIGO EXISTENTE
             const dataInput = resolvedElements.lotsDataInput;
             const additionalDataInput = resolvedElements.lotsAdditionalData;
             const labelTextInput = resolvedElements.lotsLabelTextInput;
@@ -105,26 +120,82 @@ const lotsPreviewManager = {
             console.log('LABEL_PREVIEW:', resolvedElements.LABEL_PREVIEW);
             console.log('LABEL_PREVIEW.style:', resolvedElements.LABEL_PREVIEW?.style);
 
-            const rawData = dataInput.value.trim();
-            const dataArray = rawData ? rawData.split('\n').filter(line => line.trim()) : [];
-            if (dataArray.length === 0) {
-                resolvedElements.LABEL_PREVIEW.appendChild(resolvedElements.emptyBarcodeMsg);
-                resolvedElements.previewNavigation.style.display = 'none';
-                return;
+            // Primero verificar si tenemos datos importados
+            if (state.dataFromImport && state.lotsPreviewsData && state.lotsPreviewsData.length > 0) {
+                // Usar los datos ya importados - no sobrescribirlos
+                if (previewsData !== state.lotsPreviewsData) {
+                    previewsData.length = 0;
+                    // Copiar solo los datos del código de barras
+                    state.lotsPreviewsData.forEach(record => {
+                        previewsData.push(record.barcodeData);
+                    });
+                }
+                
+                // Asegurar que previewNavigation sea visible para datos importados
+                resolvedElements.previewNavigation.style.display = 'flex';
+                resolvedElements.previewNavigation.classList.add('visible');
+                
+                // Obtener dato adicional para el índice actual
+                const additionalDataValue = state.lotsPreviewsData[currentPreviewIndex]?.additionalData || '';
+                
+                log(`Usando datos importados: ${previewsData.length} registros`, 'debug');
             } else {
-                resolvedElements.emptyBarcodeMsg.style.display = 'none';
+                // Comportamiento original para entrada manual
+                const rawData = dataInput.value.trim();
+                const dataArray = rawData ? rawData.split('\n').filter(line => line.trim()) : [];
+                if (dataArray.length === 0) {
+                    resolvedElements.LABEL_PREVIEW.appendChild(resolvedElements.emptyBarcodeMsg);
+                    resolvedElements.previewNavigation.style.display = 'none';
+                    return;
+                } else {
+                    resolvedElements.emptyBarcodeMsg.style.display = 'none';
+                }
+                
+                previewsData.length = 0;
+                previewsData.push(...dataArray);
+                
+                log(`Usando datos de entrada manual: ${previewsData.length} registros`, 'debug');
             }
 
             const additionalDataRaw = additionalDataInput.value.trim();
             const additionalDataValue = additionalDataRaw ? additionalDataRaw.split('\n')[0] : '';
 
-            previewsData.length = 0;
-            previewsData.push(...dataArray);
-            const currentData = barcodeDataOverride || previewsData[currentPreviewIndex] || '';
+            let currentData = '';
+            if (barcodeDataOverride) {
+                currentData = barcodeDataOverride;
+            } else if (previewsData[currentPreviewIndex]) {
+                // Si estamos trabajando con datos importados, el objeto tiene una estructura anidada
+                if (state.dataFromImport && typeof previewsData[currentPreviewIndex] === 'object') {
+                    currentData = previewsData[currentPreviewIndex].barcodeData || '';
+                    log(`Extrayendo barcodeData: ${currentData}`, 'debug');
+                } else {
+                    // Caso normal - previewsData contiene strings
+                    currentData = previewsData[currentPreviewIndex];
+                }
+            }
 
             additionalData.length = 0;
             if (additionalDataValue) {
                 additionalData.push(additionalDataValue);
+            }
+
+            // Determinar el texto de la etiqueta según el origen de los datos
+            let labelText = '';
+            
+            if (state.dataFromImport && state.lotsPreviewsData && state.lotsPreviewsData.length > 0) {
+                // Si los datos vienen de importación, usar el texto específico de cada registro
+                const currentRecord = state.lotsPreviewsData[state.currentPreviewIndexLots];
+                labelText = currentRecord.labelText || labelTextInput.value;
+                
+                // Actualizar el input con el texto del registro actual (para feedback visual)
+                if (labelTextInput.value !== labelText) {
+                    labelTextInput.value = labelText;
+                    // Disparar evento para actualizar contador
+                    labelTextInput.dispatchEvent(new Event('input'));
+                }
+            } else {
+                // Si es entrada manual, usar el valor del input
+                labelText = labelTextInput.value;
             }
 
             const fragment = document.createDocumentFragment();
@@ -132,8 +203,8 @@ const lotsPreviewManager = {
             const logoContainer = await createLogoContainer(logoImage, state.logoSizeLots, logoHeightPx, isPortrait ? templateWidthPx : templateHeightPx);
             fragment.appendChild(logoContainer);
 
-            if (labelTextInput.value) {
-                const textContainer = createTextContainer(labelTextInput.value, textHeightPx);
+            if (labelText) {
+                const textContainer = createTextContainer(labelText, textHeightPx);
                 fragment.appendChild(textContainer);
             }
 
@@ -209,6 +280,11 @@ const lotsPreviewManager = {
         } catch (error) {
             log(`Error al liberar recursos: ${error.message}`, 'error');
         }
+    },
+
+    // Al limpiar datos o cambiar a entrada manual, resetear flag
+    resetState: function() {
+        state.dataFromImport = false;
     }
 };
 

@@ -16,6 +16,7 @@
             text-transform: uppercase;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <header>
@@ -29,7 +30,7 @@
         <div class="control-panel">
             <div class="tabs">
                 <button class="tab-btn active" data-tab="lots" id="lots-tab-btn">Lotes</button>
-                <button class="tab-btn" data-tab="shipping" id="shipping-tab-btn">Shipping</button>
+                <button class="tab-btn" data-tab="shipping" id="shipping-tab-btn" style="display: none;">Shipping</button>
             </div>
 
             <div class="tab-content active" id="lots-tab">
@@ -38,6 +39,14 @@
                     <div class="card">
                         <label for="lots-data">Datos (una entrada por línea)</label>
                         <textarea id="lots-data" placeholder="Ingrese datos del código"></textarea>
+                        <!-- Añadir después de la línea ~45 (justo después del textarea de datos) -->
+                        <div class="import-button-container">
+                            <button id="import-data-btn" class="btn-secondary">
+                                <img src="img/upload-icon.svg" alt="Importar">
+                                Importar desde Excel/CSV
+                            </button>
+                            <input type="file" id="file-upload" class="file-upload" accept=".xlsx,.xls,.csv">
+                        </div>
                         <!-- Contador dinámico para el texto del código de barras en "Lotes" -->
                         <span id="lots-data-counter" class="char-counter">20 caracteres restantes</span>
                         <div class="form-group">
@@ -114,7 +123,7 @@
                 </div>
             </div>
 
-            <div class="tab-content" id="shipping-tab">
+            <div class="tab-content" id="shipping-tab" style="display: none;">
                 <div class="card-container">
                     <div class="card-label">Shipping</div>
                     <div class="card">
@@ -253,7 +262,7 @@
         <div class="spinner"></div>
     </div>
     <div class="version-info" id="version-info">
-        <span>v1.1.5 - 2025-03-24</span>
+        <span>v1.2.0 - 2025-04-10</span>
         <span class="designer">Diseñado por David García</span>
     </div>
 

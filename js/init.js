@@ -7,13 +7,52 @@ import previewManager from './modules/previewManager.js';
 import { convertToPixels, log, showToast } from './modules/utils.js';
 import { exportManager } from './modules/exportManager.js';
 import { LAYOUT_CONSTANTS } from './modules/constants.js';
+import { importManager } from './modules/importManager.js';
 
 // Definir previewManager como una variable global para que se actualice al cambiar de pestaña
 let currentPreviewManager = lotsPreviewManager;
 
+function resolveElements() {
+    const elements = {
+        // Elementos comunes...
+        
+        // Elementos de pestañas - con comprobación de existencia
+        lotsTabBtn: document.getElementById('lots-tab-btn'),
+        shippingTabBtn: document.getElementById('shipping-tab-btn'),
+        lotsTabContent: document.getElementById('lots-tab'),
+        shippingTabContent: document.getElementById('shipping-tab'),
+        
+        // Otros elementos...
+    };
+    
+    // Verificar elementos críticos
+    const criticalElements = ['LABEL_PREVIEW', 'preview-container'];
+    for (const elementId of criticalElements) {
+        if (!elements[elementId]) {
+            console.error(`Elemento crítico no encontrado: ${elementId}`);
+        }
+    }
+    
+    log('Elementos resueltos:', 'debug');
+    log(`LABEL_PREVIEW: ${elements.LABEL_PREVIEW ? 'Encontrado' : 'No encontrado'}`, 'debug');
+    log(`lotsTabBtn: ${elements.lotsTabBtn ? 'Encontrado' : 'No encontrado'}`, 'debug');
+    log(`shippingTabBtn: ${elements.shippingTabBtn ? 'Encontrado' : 'No encontrado'}`, 'debug');
+    
+    return elements;
+}
+
 async function initializeApp() {
     try {
         const resolvedElements = await elements;
+
+        // Activar la pestaña Lotes por defecto
+        document.getElementById('lots-tab').classList.add('active');
+        if (document.getElementById('lots-tab-btn')) {
+            document.getElementById('lots-tab-btn').classList.add('active');
+        }
+
+        // Establecer el gestor de vista previa por defecto
+        currentPreviewManager = lotsPreviewManager;
 
         // Verificar que los elementos del slider estén disponibles
         if (!resolvedElements.logoSizeSliderLots || !resolvedElements.logoSizeSliderShipping) {
@@ -21,9 +60,23 @@ async function initializeApp() {
             throw new Error('Elementos del slider no encontrados');
         }
 
-        // Configuración inicial de la pestaña activa
-        resolvedElements.lotsTabBtn.classList.add('active');
-        resolvedElements.lotsTabContent.classList.add('active');
+        // Modificar esta parte para comprobar si el botón existe antes de asignar eventos
+        const lotsTabBtn = document.getElementById('lots-tab-btn');
+        const shippingTabBtn = document.getElementById('shipping-tab-btn');
+
+        if (lotsTabBtn) {
+            lotsTabBtn.addEventListener('click', () => switchTab('lots', resolvedElements));
+            // Asegurarse de que la pestaña Lotes esté activa al inicio
+            lotsTabBtn.classList.add('active');
+            document.getElementById('lots-tab').classList.add('active');
+        }
+
+        if (shippingTabBtn) {
+            shippingTabBtn.addEventListener('click', () => switchTab('shipping', resolvedElements));
+        } else {
+            // Si no existe la pestaña Shipping, asegúrate de que currentPreviewManager sea lotsPreviewManager
+            currentPreviewManager = lotsPreviewManager;
+        }
 
         // Configuración de las unidades por defecto
         resolvedElements.unitSelectorLots.querySelector(`[data-unit="${state.currentUnitLots}"]`).classList.add('active');
@@ -51,9 +104,6 @@ async function initializeApp() {
         resolvedElements.logoSizeValueShipping.textContent = `${resolvedElements.logoSizeSliderShipping.value}%`;
 
         // Configuración de eventos
-        resolvedElements.lotsTabBtn.addEventListener('click', () => switchTab('lots', resolvedElements));
-        resolvedElements.shippingTabBtn.addEventListener('click', () => switchTab('shipping', resolvedElements));
-
         resolvedElements.unitSelectorLots.addEventListener('click', (e) => handleUnitChange(e, 'lots', resolvedElements));
         resolvedElements.unitSelectorShipping.addEventListener('click', (e) => handleUnitChange(e, 'shipping', resolvedElements));
 
@@ -220,14 +270,127 @@ async function initializeApp() {
         resolvedElements.logoUploadLots.addEventListener('change', (e) => handleLogoUpload(e, 'lots', resolvedElements));
         resolvedElements.logoUploadShipping.addEventListener('change', (e) => handleLogoUpload(e, 'shipping', resolvedElements));
 
-        resolvedElements.firstPreviewBtn.addEventListener('click', () => navigatePreview('first', resolvedElements));
-        resolvedElements.prevPreviewBtn.addEventListener('click', () => navigatePreview('prev', resolvedElements));
-        resolvedElements.nextPreviewBtn.addEventListener('click', () => navigatePreview('next', resolvedElements));
-        resolvedElements.lastPreviewBtn.addEventListener('click', () => navigatePreview('last', resolvedElements));
+        resolvedElements.firstPreviewBtn.addEventListener('click', () => {
+            navigatePreview('first', resolvedElements);
+            // Si los datos provienen de importación, actualizar también los inputs
+            if (state.dataFromImport && state.lotsPreviewsData.length > 0) {
+                const currentRecord = state.lotsPreviewsData[state.currentPreviewIndexLots];
+                resolvedElements.lotsDataInput.value = currentRecord.barcodeData || '';
+                resolvedElements.lotsAdditionalData.value = currentRecord.additionalData || '';
+            }
+        });
+
+        resolvedElements.prevPreviewBtn.addEventListener('click', () => {
+            navigatePreview('prev', resolvedElements);
+            // Si los datos provienen de importación, actualizar también los inputs
+            if (state.dataFromImport && state.lotsPreviewsData.length > 0) {
+                const currentRecord = state.lotsPreviewsData[state.currentPreviewIndexLots];
+                resolvedElements.lotsDataInput.value = currentRecord.barcodeData || '';
+                resolvedElements.lotsAdditionalData.value = currentRecord.additionalData || '';
+            }
+        });
+
+        resolvedElements.nextPreviewBtn.addEventListener('click', () => {
+            navigatePreview('next', resolvedElements);
+            // Si los datos provienen de importación, actualizar también los inputs
+            if (state.dataFromImport && state.lotsPreviewsData.length > 0) {
+                const currentRecord = state.lotsPreviewsData[state.currentPreviewIndexLots];
+                resolvedElements.lotsDataInput.value = currentRecord.barcodeData || '';
+                resolvedElements.lotsAdditionalData.value = currentRecord.additionalData || '';
+            }
+        });
+
+        resolvedElements.lastPreviewBtn.addEventListener('click', () => {
+            navigatePreview('last', resolvedElements);
+            // Si los datos provienen de importación, actualizar también los inputs
+            if (state.dataFromImport && state.lotsPreviewsData.length > 0) {
+                const currentRecord = state.lotsPreviewsData[state.currentPreviewIndexLots];
+                resolvedElements.lotsDataInput.value = currentRecord.barcodeData || '';
+                resolvedElements.lotsAdditionalData.value = currentRecord.additionalData || '';
+            }
+        });
+
+        // Añadir después de la configuración de los botones de navegación
+
+        // Navegación con teclado para etiquetas
+        document.addEventListener('keydown', (event) => {
+            // Solo procesar cuando hay múltiples etiquetas
+            if (!state.lotsPreviewsData || state.lotsPreviewsData.length <= 1) return;
+            
+            // Asegurarse de que no estamos en un campo de entrada de texto
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+            
+            const currentIndex = state.currentPreviewIndexLots;
+            const lastIndex = state.lotsPreviewsData.length - 1;
+            
+            switch (event.key) {
+                case 'ArrowLeft': // Flecha izquierda
+                case 'ArrowUp':   // Flecha arriba
+                    if (currentIndex > 0) {
+                        navigatePreview('prev', resolvedElements);
+                    }
+                    break;
+                    
+                case 'ArrowRight': // Flecha derecha
+                case 'ArrowDown':  // Flecha abajo
+                    if (currentIndex < lastIndex) {
+                        navigatePreview('next', resolvedElements);
+                    }
+                    break;
+                    
+                case 'Home': // Tecla Inicio
+                    if (currentIndex !== 0) {
+                        navigatePreview('first', resolvedElements);
+                    }
+                    break;
+                    
+                case 'End': // Tecla Fin
+                    if (currentIndex !== lastIndex) {
+                        navigatePreview('last', resolvedElements);
+                    }
+                    break;
+                    
+                default:
+                    return; // No hacer nada para otras teclas
+            }
+        });
 
         resolvedElements.printBtn.addEventListener('click', () => exportManager.printLabel());
         resolvedElements.downloadPdfBtn.addEventListener('click', () => exportManager.downloadPDF());
         resolvedElements.generateBatchBtn.addEventListener('click', () => exportManager.generateBatchZip());
+
+        // Configurar el botón de importación
+        const importDataBtn = document.getElementById('import-data-btn');
+        const fileUploadInput = document.getElementById('file-upload');
+
+        if (importDataBtn && fileUploadInput) {
+            importDataBtn.addEventListener('click', () => {
+                fileUploadInput.click();
+            });
+            
+            fileUploadInput.addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    // Mostrar spinner durante la importación
+                    document.getElementById('loading-overlay').style.display = 'flex';
+                    
+                    const success = await importManager.processFile(file, resolvedElements);
+                    
+                    // Ocultar spinner
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    
+                    if (success) {
+                        showToast(null, `Archivo importado correctamente`);
+                        updatePreviewWithDebounce(resolvedElements);
+                    } else {
+                        showToast(null, 'Error al importar el archivo');
+                    }
+                    
+                    // Limpiar el input
+                    fileUploadInput.value = '';
+                }
+            });
+        }
 
         // Actualización inicial
         updatePreviewWithDebounce(resolvedElements);
@@ -238,17 +401,29 @@ async function initializeApp() {
 }
 
 function switchTab(tab, resolvedElements) {
-    resolvedElements.lotsTabBtn.classList.toggle('active', tab === 'lots');
-    resolvedElements.shippingTabBtn.classList.toggle('active', tab === 'shipping');
-    resolvedElements.lotsTabContent.classList.toggle('active', tab === 'lots');
-    resolvedElements.shippingTabContent.classList.toggle('active', tab === 'shipping');
-    
-    // Limpiar recursos del gestor que ya no se usará
-    const isShippingTabActive = tab === 'shipping';
-    previewManager.cleanupResources(isShippingTabActive);
-    
-    // Actualizar el gestor actual después de la limpieza
+    const lotsTabBtn = resolvedElements.lotsTabBtn || document.getElementById('lots-tab-btn');
+    const shippingTabBtn = resolvedElements.shippingTabBtn || document.getElementById('shipping-tab-btn');
+    const lotsTabContent = resolvedElements.lotsTabContent || document.getElementById('lots-tab');
+    const shippingTabContent = resolvedElements.shippingTabContent || document.getElementById('shipping-tab');
+
+    // Solo modifica clases si los elementos existen
+    if (lotsTabBtn) lotsTabBtn.classList.toggle('active', tab === 'lots');
+    if (shippingTabBtn) shippingTabBtn.classList.toggle('active', tab === 'shipping');
+    if (lotsTabContent) lotsTabContent.classList.toggle('active', tab === 'lots');
+    if (shippingTabContent) shippingTabContent.classList.toggle('active', tab === 'shipping');
+
+    // Actualizar el gestor de vista previa actual
+    const isShippingTabActive = tab === 'shipping' && shippingTabBtn;
+
+    // Si estamos limpiando recursos, asegurémonos de que exista el manager antes de llamar a dispose
+    if (previewManager.cleanupResources) {
+        previewManager.cleanupResources(isShippingTabActive);
+    }
+
+    // Establecer el manager de vista previa correcto
     currentPreviewManager = isShippingTabActive ? shippingPreviewManager : lotsPreviewManager;
+
+    // Actualizar la vista previa
     updatePreviewWithDebounce(resolvedElements);
 }
 

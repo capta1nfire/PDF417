@@ -61,20 +61,20 @@ export const BARCODE_CONFIG_PORTRAIT = {
         const dpi = state.dpiLots;
         const baseScale = calculateScale(dpi);
         return { 
-            COLUMNS: 6, // Para textos cortos (4-7 caracteres)
-            ROWS: 40,
-            YHEIGHT: 4,
-            SCALE: baseScale * 0.9
+            COLUMNS: 3, // Para textos cortos (4-7 caracteres)
+            ROWS: 6,
+            YHEIGHT: 6,
+            SCALE: baseScale * 1.1
         };
     },
     get LEVEL_3() {
         const dpi = state.dpiLots;
         const baseScale = calculateScale(dpi);
         return { 
-            COLUMNS: 8, // Para textos medianos a largos (> 7 caracteres)
-            ROWS: 50,
-            YHEIGHT: 4,
-            SCALE: baseScale * 0.9
+            COLUMNS: 3, // Para textos medianos a largos (> 7 caracteres)
+            ROWS: 6,
+            YHEIGHT: 6,
+            SCALE: baseScale * 1.1
         };
     }
 };
