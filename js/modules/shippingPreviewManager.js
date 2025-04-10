@@ -5,6 +5,11 @@ import { log, convertToPixels } from './utils.js';
 import { state } from './state.js';
 
 const shippingPreviewManager = {
+    // Propiedades para caché de recursos
+    cachedBarcodes: {},
+    cachedCanvas: null,
+    cachedLogo: null,
+    
     updatePreview: async (barcodeDataOverride, resolvedElements) => {
         try {
             const dataInput = resolvedElements.shippingDataInput;
@@ -133,6 +138,31 @@ const shippingPreviewManager = {
             }
         } catch (error) {
             log(`Error en shippingPreviewManager.updatePreview: ${error.message}`, 'error');
+        }
+    },
+    
+    // Función para liberar recursos
+    dispose: function() {
+        try {
+            // Limpieza de referencias a canvas
+            if (this.cachedCanvas) {
+                this.cachedCanvas.width = 0;
+                this.cachedCanvas.height = 0;
+                this.cachedCanvas = null;
+            }
+            
+            // Limpieza de imágenes grandes en memoria
+            if (this.cachedLogo) {
+                this.cachedLogo.src = '';
+                this.cachedLogo = null;
+            }
+            
+            // Limpieza de datos almacenados en caché
+            this.cachedBarcodes = {};
+            
+            log('Recursos de shippingPreviewManager liberados', 'info');
+        } catch (error) {
+            log(`Error al liberar recursos: ${error.message}`, 'error');
         }
     }
 };

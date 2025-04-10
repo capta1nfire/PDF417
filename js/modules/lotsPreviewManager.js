@@ -16,6 +16,11 @@ export async function updatePreview(event, resolvedElements) {
 }
 
 const lotsPreviewManager = {
+    // Propiedades para caché de recursos
+    cachedBarcodes: {},
+    cachedCanvas: null,
+    cachedLogo: null,
+    
     updatePreview: async (barcodeDataOverride, resolvedElements) => {
         try {
             const dataInput = resolvedElements.lotsDataInput;
@@ -178,6 +183,31 @@ const lotsPreviewManager = {
             if (resolvedElements && resolvedElements.toastMessage) {
                 showToast(resolvedElements.toastMessage, 'Error actualizando vista previa.');
             }
+        }
+    },
+    
+    // Función para liberar recursos
+    dispose: function() {
+        try {
+            // Limpieza de referencias a canvas
+            if (this.cachedCanvas) {
+                this.cachedCanvas.width = 0;
+                this.cachedCanvas.height = 0;
+                this.cachedCanvas = null;
+            }
+            
+            // Limpieza de imágenes grandes en memoria
+            if (this.cachedLogo) {
+                this.cachedLogo.src = '';
+                this.cachedLogo = null;
+            }
+            
+            // Limpieza de datos almacenados en caché
+            this.cachedBarcodes = {};
+            
+            log('Recursos de lotsPreviewManager liberados', 'info');
+        } catch (error) {
+            log(`Error al liberar recursos: ${error.message}`, 'error');
         }
     }
 };

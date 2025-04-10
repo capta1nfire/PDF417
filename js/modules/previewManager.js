@@ -85,6 +85,23 @@ const previewManager = {
         if (resolvedElements && resolvedElements.toastMessage) {
             showToast(resolvedElements.toastMessage, `Orientación: ${newIsPortrait ? 'Vertical' : 'Horizontal'}`);
         }
+    },
+
+    cleanupResources: async (isShippingTabActive) => {
+        try {
+            // Limpiar recursos del gestor que no se usará
+            if (isShippingTabActive) {
+                // Si shipping está activo, limpiar lotes
+                lotsPreviewManager.dispose();
+                log("Recursos de lotsPreviewManager liberados durante cambio de pestaña", 'info');
+            } else {
+                // Si lotes está activo, limpiar shipping
+                shippingPreviewManager.dispose();
+                log("Recursos de shippingPreviewManager liberados durante cambio de pestaña", 'info');
+            }
+        } catch (error) {
+            log(`Error al limpiar recursos: ${error.message}`, 'error');
+        }
     }
 };
 

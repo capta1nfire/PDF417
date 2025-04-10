@@ -243,7 +243,12 @@ function switchTab(tab, resolvedElements) {
     resolvedElements.lotsTabContent.classList.toggle('active', tab === 'lots');
     resolvedElements.shippingTabContent.classList.toggle('active', tab === 'shipping');
     
-    currentPreviewManager = tab === 'lots' ? lotsPreviewManager : shippingPreviewManager;
+    // Limpiar recursos del gestor que ya no se usará
+    const isShippingTabActive = tab === 'shipping';
+    previewManager.cleanupResources(isShippingTabActive);
+    
+    // Actualizar el gestor actual después de la limpieza
+    currentPreviewManager = isShippingTabActive ? shippingPreviewManager : lotsPreviewManager;
     updatePreviewWithDebounce(resolvedElements);
 }
 
